@@ -102,6 +102,29 @@
 
             return dp[n];
         }
+
+        public int CountSeniors(string[] details)
+        {
+            return details.Count(x => x[^4] > '6' || (x[^4] == '6' && x[^3] > '0'));
+        }
+
+        public int MinSwaps(int[] nums)
+        {
+            int n = nums.Length;
+            int counter = nums.Sum();
+            int max = nums.Take(counter).Sum();
+            int curSum = max;
+            for (int i = counter; i < n + counter; i++ )
+            {
+                curSum += nums[i % n];
+                curSum -= nums[i-counter];
+                if (curSum > max)
+                {
+                    max = curSum;
+                }
+            }
+            return counter - max;
+        }
     }
     static class SolutionExtenssion
     {

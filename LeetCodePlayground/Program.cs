@@ -19,7 +19,7 @@ public class Programm
 
 
         timer.Start();
-        var ans = a.MinHeightShelves(data, 4);
+        var ans = a.MinSwaps(new int[] { 1, 1, 0, 0, 1 });
         timer.Stop();
         Console.WriteLine($"Answer: {ans}");
         Console.WriteLine($"Time taken: {timer.ElapsedMilliseconds} ms");
