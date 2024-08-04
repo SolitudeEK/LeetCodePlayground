@@ -104,9 +104,7 @@
         }
 
         public int CountSeniors(string[] details)
-        {
-            return details.Count(x => x[^4] > '6' || (x[^4] == '6' && x[^3] > '0'));
-        }
+            => details.Count(x => x[^4] > '6' || (x[^4] == '6' && x[^3] > '0'));
 
         public int MinSwaps(int[] nums)
         {
@@ -125,7 +123,48 @@
             }
             return counter - max;
         }
+
+        public bool CanBeEqual(int[] target, int[] arr)
+        {
+            int[] map = new int[1001];
+
+            foreach (int i in arr)
+                map[i]++;
+
+            foreach (int i in target)
+            {
+                if (map[i] > 0) map[i]--;
+                else return false;
+            }
+
+            return true;
+        }
+
+        public int RangeSum(int[] nums, int n, int left, int right)
+        {
+            int MOD = 1000000007;
+            List<int> sums = new List<int>();
+
+            for (int i = 0; i < n; i++)
+            {
+                int currentSum = 0;
+                for (int j = i; j < n; j++)
+                {
+                    currentSum += nums[j];
+                    sums.Add(currentSum);
+                }
+            }
+
+            sums.Sort();
+
+            long result = 0;
+            for (int i = left - 1; i < right; i++)
+                result = (result + sums[i]) % MOD;
+
+            return (int)result;
+        }
     }
+
     static class SolutionExtenssion
     {
         public static void Print<T>(this T[] array)
