@@ -1,4 +1,6 @@
-﻿namespace LeetCodePlayground
+﻿using System.Linq;
+
+namespace LeetCodePlayground
 {
     public class Solution
     {
@@ -163,6 +165,28 @@
 
             return (int)result;
         }
+
+        public string KthDistinct(string[] arr, int k)
+        {
+            int n = arr.Length;
+            List<string> unique = new List<string>();
+            for(int  i =0; i < n-1; i++)
+            {
+                string candidate = arr[i];
+                for (int j = i+1; j < n; j++)
+                {
+                    if (candidate == arr[j])
+                    {
+                        arr[j] = "";
+                        arr[i] = "";
+                    }
+                }
+                if (arr[i]!="") unique.Add(arr[i]);
+            }
+            if (arr[n-1] != "") unique.Add(arr[n-1]);
+            if (unique.Count < k) return "";
+            return unique[k-1];
+        }
     }
 
     static class SolutionExtenssion
@@ -196,6 +220,16 @@
             Stack<T> tempStack = new Stack<T>(stack);
             Console.Write("Stack:");
             foreach (var item in tempStack)
+            {
+                Console.Write($"{item}, ");
+            }
+            Console.WriteLine();
+        }
+
+        public static void Print<T>(this List<T> list)
+        {
+            Console.Write("List:");
+            foreach (var item in list)
             {
                 Console.Write($"{item}, ");
             }

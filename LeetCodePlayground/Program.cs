@@ -19,9 +19,9 @@ public class Programm
 
 
         timer.Start();
-        var ans = a.MinSwaps(new int[] { 1, 1, 0, 0, 1 });
+        //var ans = a.SurvivedRobotsHealths(new int[] { 3, 5, 2, 6 }, new int[] { 10, 10, 15, 12 }, "RLRL");
         timer.Stop();
-        Console.WriteLine($"Answer: {ans}");
+        //Console.WriteLine($"Answer: {string.Join(", ", ans)}");
         Console.WriteLine($"Time taken: {timer.ElapsedMilliseconds} ms");
     }
 }
