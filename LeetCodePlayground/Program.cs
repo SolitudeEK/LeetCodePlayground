@@ -19,9 +19,9 @@ public class Programm
 
 
         timer.Start();
-        //var ans = a.SurvivedRobotsHealths(new int[] { 3, 5, 2, 6 }, new int[] { 10, 10, 15, 12 }, "RLRL");
+        var ans = a.MinimumPushes("aabbccddeeffgghhiiiiii");
         timer.Stop();
-        //Console.WriteLine($"Answer: {string.Join(", ", ans)}");
+        Console.WriteLine($"Answer: {ans}");
         Console.WriteLine($"Time taken: {timer.ElapsedMilliseconds} ms");
     }
 }

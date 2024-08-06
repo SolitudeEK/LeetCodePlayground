@@ -187,6 +187,26 @@ namespace LeetCodePlayground
             if (unique.Count < k) return "";
             return unique[k-1];
         }
+
+        public int MinimumPushes(string word)
+        {
+            Dictionary<char, int> letters = new Dictionary<char, int>();
+            foreach (char letter in word)
+            {
+                if (!letters.TryAdd(letter, 1))
+                    letters[letter]++;
+            }
+
+            var sortedLetters = letters.OrderByDescending(x => x.Value).Select(x => x.Value);
+
+            int counter=0;
+            int multiplier = 8;
+            foreach (var letter in sortedLetters)
+            {
+                counter += letter * (multiplier++ / 8);
+            }
+            return counter;
+        }
     }
 
     static class SolutionExtenssion
