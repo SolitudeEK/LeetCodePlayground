@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Diagnostics.Metrics;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace LeetCodePlayground
 {
@@ -206,6 +208,36 @@ namespace LeetCodePlayground
                 counter += letter * (multiplier++ / 8);
             }
             return counter;
+        }
+
+        public int[][] SpiralMatrixIII(int rows, int cols, int rStart, int cStart)
+        {
+            int count = 1, curDir = 0, step = 1;
+            int[][] matrix = new int[cols*rows][];
+            int[][] dirs = new int[][] {
+                new int[] {0, 1},
+                new int[] {1, 0},
+                new int[] {0, -1},
+                new int[] {-1, 0}
+            };
+
+            matrix[0] = new int[] { rStart, cStart };
+            while(count < cols * rows)
+            {
+                for(int i=0; i < 2; i++)
+                {
+                    for (int j=0; j < step; j++)
+                    {
+                        rStart += dirs[curDir][0];
+                        cStart += dirs[curDir][1];
+                        if (rStart < rows && cStart < cols && cStart >= 0 && rStart >= 0)
+                            matrix[count++] = new int[] { rStart, cStart };
+                    }
+                    curDir = ++curDir % 4;
+                }
+                step++;
+            }
+            return matrix;
         }
     }
 
