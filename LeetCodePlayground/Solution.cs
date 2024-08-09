@@ -239,6 +239,54 @@ namespace LeetCodePlayground
             }
             return matrix;
         }
+
+        public int NumMagicSquaresInside(int[][] grid)
+        {
+            int count = 0;
+            int[][][] magicSquares =                //All possible magic square
+            {
+                new int[][] { new int[] {2, 7, 6}, new int[] {9, 5, 1}, new int[] {4, 3, 8} },
+                new int[][] { new int[] {6, 1, 8}, new int[] {7, 5, 3}, new int[] {2, 9, 4} },
+                new int[][] { new int[] {8, 1, 6}, new int[] {3, 5, 7}, new int[] {4, 9, 2} },
+                new int[][] { new int[] {4, 9, 2}, new int[] {3, 5, 7}, new int[] {8, 1, 6} },
+                new int[][] { new int[] {8, 3, 4}, new int[] {1, 5, 9}, new int[] {6, 7, 2} },
+                new int[][] { new int[] {4, 3, 8}, new int[] {9, 5, 1}, new int[] {2, 7, 6} },
+                new int[][] { new int[] {6, 7, 2}, new int[] {1, 5, 9}, new int[] {8, 3, 4} },
+                new int[][] { new int[] {2, 9, 4}, new int[] {7, 5, 3}, new int[] {6, 1, 8} }
+            };
+            for (int i = 0; i < grid.Length-2; i++)
+            {
+                for (int j = 0; j < grid[0].Length-2; j++)
+                {
+                    if (IsMagicSquare(i, j))
+                        count++;
+                }
+            }
+
+            bool IsMagicSquare(int row, int col)
+            {
+
+                for(int k=0; k< 8; k++)
+                {
+                    bool isSame = true;
+                    for (int i=0; i <3; i++)
+                    {
+                        for(int j=0; j<3; j++)
+                        {
+                            if (grid[row + i][col+j] != magicSquares[k][i][j])
+                            {
+                                isSame = false; break;
+                            }
+                        }
+                        if (!isSame) break;
+                    }
+                    if(isSame) return true;
+                }
+                return false;
+            }
+
+            return count;
+        }
     }
 
     static class SolutionExtenssion

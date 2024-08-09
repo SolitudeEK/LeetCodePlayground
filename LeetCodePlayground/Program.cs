@@ -9,18 +9,14 @@ public class Programm
         Stopwatch timer = new Stopwatch();
         int[][] data =
 {
-            new int[] {1, 1},
-            new int[] {2, 3},
-            new int[] {2, 3},
-            new int[] {1, 1},
-            new int[] {1, 1},
-            new int[] {1, 1},
-            new int[] {1, 2}
+            new int[] { 4, 3, 8, 4 },
+            new int[] { 9, 5, 1, 9 },
+            new int[] { 2, 7, 6, 2 }
         };
 
 
         timer.Start();
-        var ans = a.SpiralMatrixIII(5, 6, 1, 4);
+        var ans = a.NumMagicSquaresInside(data);
         timer.Stop();
         Console.WriteLine($"Answer: {ans}");
         Console.WriteLine($"Time taken: {timer.ElapsedMilliseconds} ms");
