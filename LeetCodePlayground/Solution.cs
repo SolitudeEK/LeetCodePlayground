@@ -724,6 +724,77 @@ namespace LeetCodePlayground
             }
             return -1;
         }
+
+        public long GridGame(int[][] grid)
+        {
+            int n = grid[0].Length;
+
+            long[] topPrefixSum = new long[n + 1];
+            long[] bottomPrefixSum = new long[n + 1];
+
+            for (int i = 0; i < n; i++)
+            {
+                topPrefixSum[i + 1] = topPrefixSum[i] + grid[0][i];
+                bottomPrefixSum[i + 1] = bottomPrefixSum[i] + grid[1][i];
+            }
+
+            long result = long.MaxValue;
+
+            for (int col = 0; col < n; col++)
+            {
+                long topRemaining = topPrefixSum[n] - topPrefixSum[col + 1];
+
+                long bottomCollected = bottomPrefixSum[col];
+
+                long secondRobotPoints = Math.Max(topRemaining, bottomCollected);
+
+                result = Math.Min(result, secondRobotPoints);
+            }
+
+            return result;
+        }
+
+        public int[][] HighestPeak(int[][] isWater)
+        {
+            var cells = new Queue<(int X, int Y)>();
+            int m = isWater.Length;
+            int n = isWater[0].Length;
+
+            var dirs = new(int X, int Y)[] { (0, 1), (0, -1), (1, 0), (-1, 0) };
+
+            for(int i=0; i < m; i++)
+            {
+                for(int j = 0; j < n; j++)
+                {
+                    if (isWater[i][j] == 1)
+                    {
+                        cells.Enqueue((i, j));
+                        isWater[i][j] = 0;
+                    }
+                    else
+                        isWater[i][j] = -1;
+                }
+            }
+
+            while (cells.Count > 0)
+            {
+                var cell = cells.Dequeue();
+
+                foreach (var dir in dirs)
+                {
+                    int x = cell.X + dir.X;
+                    int y = cell.Y + dir.Y;
+
+                    if (x >= 0 && x < m && y >= 0 && y < n && isWater[x][y] == -1)
+                    {
+                        isWater[x][y] = isWater[cell.X][cell.Y] + 1;
+                        cells.Enqueue((x, y));
+                    }
+                }
+            }
+
+            return isWater;
+        }
     }
 
     static class SolutionExtenssion

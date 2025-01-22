@@ -4,17 +4,13 @@ public class Programm
 {
     public static void Main()
     {
-        //Solution a = new Solution();
+        Solution a = new Solution();
         //var ans = a.MinimizeXor(25, 72);
         int[][] m = {
-    new int[] {3, 3, 3, 3, 3},
-    new int[] {3, 2, 2, 2, 3},
-    new int[] {3, 2, 1, 2, 3},
-    new int[] {3, 2, 2, 2, 3},
-    new int[] {3, 3, 3, 3, 3}
+    new int[] {0, 1},
+    new int[] {0,0}
 };
-        var a = new TrappingWaterII();
-        var ans = a.TrapRainWater(m);
+        var ans = a.HighestPeak(m);
         Console.WriteLine($"Answer: {ans}");
     }
 }
