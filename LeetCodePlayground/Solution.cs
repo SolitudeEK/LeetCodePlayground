@@ -3,6 +3,7 @@ using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 
 namespace LeetCodePlayground
@@ -561,7 +562,7 @@ namespace LeetCodePlayground
 
             for (int i = 0; i < n - 1; i++)
             {
-                var j = i + 1l;
+                var j = i + 1L;
                 while (j < n && prices[i] < prices[j])
                     j++;
 
@@ -795,6 +796,885 @@ namespace LeetCodePlayground
 
             return isWater;
         }
+
+        public int[] LexicographicallySmallestArray(int[] nums, int limit)
+        {
+            int n = nums.Length;
+
+            List<int>[] graph = new List<int>[n];
+            for (int i = 0; i < n; i++)
+            {
+                graph[i] = new List<int>();
+            }
+
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = i + 1; j < n; j++)
+                {
+                    if (Math.Abs(nums[i] - nums[j]) <= limit)
+                    {
+                        graph[i].Add(j);
+                        graph[j].Add(i);
+                    }
+                }
+            }
+
+            bool[] visited = new bool[n];
+            void DFS(int node, List<int> indices)
+            {
+                visited[node] = true;
+                indices.Add(node);
+
+                foreach (int neighbor in graph[node])
+                {
+                    if (!visited[neighbor])
+                    {
+                        DFS(neighbor, indices);
+                    }
+                }
+            }
+
+            for (int i = 0; i < n; i++)
+            {
+                if (!visited[i])
+                {
+                    List<int> indices = new List<int>();
+                    DFS(i, indices);
+
+                    List<int> values = indices.Select(index => nums[index]).ToList();
+                    indices.Sort();
+                    values.Sort();
+                    for (int k = 0; k < indices.Count; k++)
+                    {
+                        nums[indices[k]] = values[k];
+                    }
+                }
+            }
+
+            return nums;
+        }
+
+        public int CountGoodTriplets(int[] arr, int a, int b, int c)
+        {
+            int n = arr.Length;
+            int result = 0;
+
+            for (int i = 0; i < n - 2; i++)
+            {
+                for (int j = i + 1; j < n - 1; j++)
+                {
+                    if (Math.Abs((arr[i] - arr[j])) <= a)
+                    {
+                        for (int k = j + 1; k < n; k++)
+                        {
+                            if (Math.Abs((arr[j] - arr[k])) <= b && Math.Abs((arr[i] - arr[k])) <= c)
+                                result++;
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        public int CountGoodNumbers(long n)//fix
+        {
+            int evenMultiplayer = 5;
+            int oddMultiplayer = 4;
+            int mod = 1_000_000_007;
+
+            if (n == 1)
+                return 5;
+
+            return (int)((long)Math.Pow(oddMultiplayer, n / 2) % mod * (long)Math.Pow(evenMultiplayer, (int)Math.Ceiling((double)n / 2)) % mod) % mod;
+        }
+
+        public int CountSymmetricIntegers(int low, int high)
+        {
+            int result = 0;
+
+            for(int i = low; i <= high; i++)
+            {
+                if(i > 10 && i < 100)
+                {
+                    if(i / 10 == i % 10)
+                        result++;
+                }
+                else if(i > 1000)
+                {
+                    if(i / 1000 + (i / 100) % 10 == i % 10 + (i % 100) / 10)
+                        result++;
+                }
+            }
+
+            return result;
+        }
+
+        public bool LemonadeChange(int[] bills)
+        {
+            int bills5 = 0, bills10 = 0;
+
+            for (int i = 0; i < bills.Length; i++)
+            {
+                switch (bills[i])
+                {
+                    case 5:
+                        bills5++; break;
+                    case 10:
+                        bills10++;
+                        bills5--;
+                        
+                        break;
+                    case 20:
+                        if(bills10 > 0)
+                        {
+                            bills10--;
+                            bills5--;
+                        }
+                        else
+                            bills5 -= 3;
+                        break;
+                }
+                if (bills5 < 0) return false;
+            }
+            return true;
+        }
+
+        public int MaxDistance(IList<IList<int>> arrays)
+        {
+            int max = arrays[0].Last();
+            int min = arrays[0][0];
+            int result = 0;
+
+            for(int i =1; i < arrays.Count; i++)
+            {
+                int curMax = arrays[i].Last();
+                int curMin = arrays[i][0];
+
+                result = Math.Max(result, Math.Max(Math.Abs(max - curMin), Math.Abs(curMax - min)));
+
+                min = int.Min(min, curMin);
+                max = int.Max(max, curMax);
+            }
+            return result;
+        }
+
+        public long MaxPoints(int[][] points)
+        {
+            int m = points.Length;
+            int n = points[0].Length;
+
+            long[] prev = new long[n];
+
+            for (int j = 0; j < n; j++)
+            {
+                prev[j] = points[0][j];
+            }
+
+            for (int i = 1; i < m; i++)
+            {
+                long[] leftMax = new long[n];
+                long[] rightMax = new long[n];
+                long[] curr = new long[n];
+
+                leftMax[0] = prev[0];
+                for (int j = 1; j < n; j++)
+                    leftMax[j] = Math.Max(leftMax[j - 1] - 1, prev[j]);
+
+                rightMax[n - 1] = prev[n - 1];
+                for (int j = n - 2; j >= 0; j--)
+                    rightMax[j] = Math.Max(rightMax[j + 1] - 1, prev[j]);
+
+                for (int j = 0; j < n; j++)
+                    curr[j] = points[i][j] + Math.Max(leftMax[j], rightMax[j]);
+
+                prev = curr;
+            }
+
+            long max = 0;
+            foreach (var val in prev)
+                max = Math.Max(max, val);
+
+            return max;
+        }
+
+        public int MinSteps(int n)
+        {
+            int res = 0;
+            for (int i = 2; i <= n; i++)
+            {
+                while (n % i == 0)
+                {
+                    res += i;
+                    n /= i;
+                }
+            }
+            return res;
+        }
+
+        public long CountGood(int[] nums, int k)
+        {
+            var map = new Dictionary<int, int>();
+            long result = 0;
+            int n = nums.Length;
+            int i = 0, j = 1;
+
+            Add(nums[i]);
+
+            long counter = 0;
+            while(i < n -1)
+            {
+                while (counter < k&&j < n)
+                {
+                    int temp = nums[j];
+                    Add(temp);
+                    counter -= (map[temp] - 1) * (map[temp] - 2) / 2;
+                    counter += map[temp] * (map[temp] - 1) / 2;
+                    j++;
+                }
+
+                if (counter >= k)
+                    result += n - j + 1;
+
+                counter -= map[nums[i]] * (map[nums[i]] - 1) / 2;
+                map[nums[i]]--;
+                counter += map[nums[i]] * (map[nums[i]] - 1) / 2;
+                i++;
+            }
+
+            void Add(int x)
+            {
+                if (map.ContainsKey(x))
+                    map[x]++;
+                else
+                    map.Add(x, 1);
+            }
+
+            return result;
+        }
+
+        public IList<string> StringMatching(string[] words)
+        {
+            var result = new List<string>();
+            int n = words.Length;
+
+            for(int i =0; i < n; i++)
+            {
+                for(int j = 0; j < n; j++)
+                {
+                    if (i != j && words[j].Contains(words[i]))
+                    {
+                        result.Add(words[i]);
+                        break;
+                    }
+                }
+            }
+            return result;
+        }
+
+        public int PrefixCount(string[] words, string pref)
+            => words.Count(x => x.StartsWith(pref));
+
+        public IList<string> WordSubsets(string[] words1, string[] words2)
+        {
+            var result = new List<string>();
+            var freq = new int[26];
+
+            foreach(string word in words2)
+            {
+                var temp = new int[26];
+                foreach (char c in word)
+                    temp[c - 'a']++;
+
+                for(int i = 0; i < 26; i++)
+                    freq[i]= Math.Max(freq[i], temp[i]);
+            }
+
+            foreach(string word in words1)
+            {
+                var curFreq = new int[26];
+
+                foreach(char c in word)
+                    curFreq[c-'a']++;
+
+                bool isUniversal = true;
+
+                for(int i = 0;i < 26; i++)
+                {
+                    if (freq[i] > curFreq[i])
+                    {
+                        isUniversal = false;
+                        break;
+                    }
+                }
+
+                if(isUniversal)
+                    result.Add(word);
+            }
+
+            return result;
+        }
+
+        public int NumberOfArrays(int[] differences, int lower, int upper)
+        {
+            int n  = differences.Length;
+            int max = int.MinValue;
+            int min = int.MaxValue;
+            int cur = 0;
+
+            for(int i = 0; i < n; i++)
+            {
+                cur += differences[i];
+                
+                max = Math.Max(max, cur);
+                min = Math.Min(min, cur);
+            }
+
+            return Math.Max(upper - lower - (max - min) + 1, 0);
+        }
+
+        public int CountLargestGroup(int n)
+        {
+            var map = new Dictionary<int, int>();
+
+            for (int i = 1; i <= n; i++)
+            {
+                int k = 0, temp = i;
+
+                while (temp > 0)
+                {
+                    k += temp % 10;
+                    temp /= 10;
+                }
+
+                if(map.ContainsKey(k))
+                    map[k]++;
+                else
+                    map.Add(k, 1);
+            }
+
+            int max = 0, count = 0;
+
+            foreach (int i in map.Values)
+            {
+                if (max < i)
+                {
+                    max = i;
+                    count = 1;
+                }
+                else if (max == i)
+                    count++;
+            }
+
+
+            return count;
+        }
+
+        public int CountCompleteSubarrays(int[] nums)
+        {
+            int totalUnique = new HashSet<int>(nums).Count;
+            int result = 0;
+            int left = 0;
+            var freq = new Dictionary<int, int>();
+
+            for (int right = 0; right < nums.Length; right++)
+            {
+                if (!freq.ContainsKey(nums[right]))
+                    freq[nums[right]] = 1;
+                else
+                    freq[nums[right]]++;
+
+                while (freq.Count == totalUnique)
+                {
+                    result += nums.Length - right;
+
+                    freq[nums[left]]--;
+                    if (freq[nums[left]] == 0)
+                        freq.Remove(nums[left]);
+                    left++;
+                }
+            }
+
+            return result;
+        }
+
+        public int MinTimeToReach(int[][] moveTime)
+        {
+            int n = moveTime.Length;
+            int m = moveTime[0].Length;
+            var visited = new bool[n, m];
+            var pq = new PriorityQueue<(int x, int y, bool parity), int>();
+            var dir = new (int x, int y)[] { (0, -1), (0, 1), (1, 0), (-1, 0) };
+
+            pq.Enqueue((0, 0, true), 0);
+
+            while(pq.Count > 0)
+            {
+                pq.TryDequeue(out var cell, out int time);
+                if (visited[cell.x, cell.y])
+                    continue;
+                visited[cell.x, cell.y] = true;
+
+                if (cell.x == n - 1 && cell.y == m - 1)
+                    return time;
+
+                var addCost = cell.parity ? 1 : 2;
+
+                for (int i = 0; i < 4; i++)
+                {
+                    (int x, int y) newCell = (cell.x + dir[i].x, cell.y + dir[i].y);
+
+                    if (newCell.x < 0 || newCell.y < 0 || newCell.x >= n || newCell.y >= m)
+                        continue;
+                    var newTime = Math.Max(time, moveTime[newCell.x][newCell.y]) + addCost;
+                    pq.Enqueue((newCell.x, newCell.y, !cell.parity), newTime);
+                }
+            }
+
+            return -1;
+        }
+
+        public bool CanPartition(int[] nums)
+        {
+            var count = nums.Sum(x => x);
+
+            if( count % 2 == 1) 
+                return false;
+
+            var target = count / 2;
+            var dp = new bool[target + 1];
+            dp[0] = true;
+
+            foreach(var num in nums)
+            {
+                for(int i = target; i >= 0; i--)
+                {
+                    dp[i] |= dp[i - num];
+                }
+            }
+
+            return dp[^1];
+        }
+
+        public int CombinationSum4(int[] nums, int target)
+        {
+            var dp = new int[target + 1];
+            dp[0] = 1;
+
+            for(int i =1; i <= target; i++)
+            {
+                foreach(var num in nums)
+                {
+                    if (i - num >= 0)
+                    {
+                        dp[i] += dp[i - num];
+                    }
+                }
+            }
+
+            return dp[^1];
+        }
+
+        public int CountBalancedPermutations(string num) // Move to hard question and try to cpmplete
+        {
+            var nums = new int[num.Length]; 
+            
+            for(int i = 0; i<nums.Length; i++)
+                nums[i] = num[i] - '0';
+
+            var target = nums.Sum(x => x);
+
+            if (target % 2 == 1)
+                return 0;
+
+            target /= 2;
+            var dp = new int[target + 1];
+            dp[0] = 1;
+            
+
+            foreach(var digit  in nums)
+            {
+                for(int i = target; i >= digit; i--)
+                {
+                    dp[i] =(dp[i] + dp[i - digit]) % 1_000_000_007;
+                }
+            }
+            //dp.Print();
+            return dp[^1];
+        }
+
+        public long MinSum(int[] nums1, int[] nums2)
+        {
+            int numZero1 = nums1.Count(x => x == 0);
+            int numZero2 = nums2.Count(x => x == 0);
+
+            long count1 = nums1.Aggregate(0L, (current, n) => current + n);
+            long count2 = nums2.Aggregate(0L, (current, n) => current + n);
+
+            if (count1 + numZero1 > count2 && numZero2 == 0)
+                return -1;
+            if (count2 + numZero2 > count1 && numZero1 == 0)
+                return -1;
+            if (numZero1 == 0 && numZero2 == 0 && count1 != count2)
+                return -1;
+
+            return Math.Max(count1 + numZero1, count2 + numZero2);
+        }
+
+        public bool ThreeConsecutiveOdds(int[] arr)
+        {
+            var count = 3;
+
+            foreach(var digit  in arr)
+            {
+                if (digit % 2 == 1)
+                    count--;
+                else
+                    count = 3;
+
+                if (count == 0)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public int[] FindEvenNumbers(int[] digits)
+        {
+            var result = new List<int>();
+            var set = new int[10];
+
+            foreach(var digit in digits)
+            {
+                set[digit]++;
+            }
+
+            for(int i= 100; i < 999; i += 2)
+            {
+                int fDig = i / 100;
+                int sDig = i % 100 / 10;
+                int tDig = i % 10;
+                set[fDig]--;
+                set[sDig]--;
+                set[tDig]--;
+
+                if (set[fDig] >= 0 && set[sDig] >= 0 && set[tDig] >= 0)
+                    result.Add(i);
+
+                set[fDig]++;
+                set[sDig]++;
+                set[tDig]++;
+            }
+
+            return result.ToArray();
+        }
+
+        public int[] FindMissingAndRepeatedValues(int[][] grid)
+        {
+            var n = grid.Length;
+            var nums = new int[n * n + 1];
+            var result = new int[2];
+
+            for(int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                    nums[grid[i][j]]++;
+            }
+
+            for (int i = 1; i < nums.Length; i++)
+            {
+                if (nums[i] == 2)
+                    result[0] = i;
+                if (nums[i] == 0)
+                    result[1] = i;
+            }
+
+            return result;
+        }
+
+        public int[] ClosestPrimes(int left, int right)
+        {
+            List<int> primes = new List<int>();
+
+            for (int i = left; i <= right; i++)
+            {
+                if (IsPrime(i))
+                    primes.Add(i);
+            }
+
+            if (primes.Count < 2)
+                return new int[] { -1, -1 };
+
+            int minDiff = int.MaxValue;
+            int[] result = new int[2];
+
+            for (int i = 1; i < primes.Count; i++)
+            {
+                int diff = primes[i] - primes[i - 1];
+                if (diff < minDiff)
+                {
+                    minDiff = diff;
+                    result[0] = primes[i - 1];
+                    result[1] = primes[i];
+                }
+            }
+
+            bool IsPrime(int number)
+            {
+                if (number <= 1) return false;
+                if (number == 2) return true;
+                if (number % 2 == 0) return false;
+
+                int limit = (int)Math.Sqrt(number);
+                for (int i = 3; i <= limit; i += 2)
+                {
+                    if (number % i == 0)
+                        return false;
+                }
+
+                return true;
+            }
+
+            return result;
+        }
+
+        public int MinimumRecolors(string blocks, int k)
+        {
+            var count = 0;
+            for (int i = 0; i < k; i++)
+            {
+                if (blocks[i] == 'W')
+                    count++;
+            }
+
+            int min = count;
+
+            for (int i = 0; i < blocks.Length - k; i++)
+            {
+                if (blocks[i] == 'W')
+                    count--;
+                if (blocks[i + k] == 'W')
+                    count++;
+
+                if (min > count)
+                    min = count;
+            }
+
+            return min;
+        }
+
+        public int NumberOfAlternatingGroups(int[] colors, int k)
+        {
+            int n = colors.Length;
+            var arr = colors.Concat(colors[0..(k - 1)]).ToArray();
+
+            int res = 0;
+            int cur = 1;
+
+            for (int i = 0; i < n + k - 2; i++)
+            {
+                if (arr[i] != arr[i + 1])
+                    cur++;
+                else
+                {
+                    res += cur >= k ? cur - k + 1 : 0;
+                    cur = 1;
+                }
+            }
+
+            res += cur >= k ? cur - k + 1 : 0;
+            return res;
+        }
+
+        public int MaximumCount(int[] nums)
+            => Math.Max(nums.Count(x => x > 0), nums.Count(x => x < 0));
+
+        public int MinZeroArray(int[] nums, int[][] queries)
+        {
+            int n = nums.Length;
+            var line = new int[n+1];
+            int k = 0;
+            int overallDecrement = 0;
+
+            for(int i=0; i < n; i++)
+            {
+                while (nums[i] > overallDecrement + line[i] )
+                {
+                    if (k == queries.Length)
+                        return -1;
+
+                    int li = queries[k][0];
+                    int ri = queries[k][1];
+                    int val = queries[k][2];
+
+                    k++;
+
+                    if (ri < i)
+                        continue;
+
+                    line[Math.Max(li, i)] += val;
+
+                    line[ri + 1] -= val;
+                }
+
+                overallDecrement += line[i];
+            }
+
+            return k;
+        }
+
+        public bool IsZeroArray(int[] nums, int[][] queries)
+        {
+            int n = nums.Length;
+            var line = new int[n+1];
+            int k = 0;
+            int overall = 0;
+
+            for(int i=0; i < n; i++)
+            {
+                while(overall + line[i] < nums[i])
+                {
+                    if(k == queries.Length)
+                        return false;
+
+                    int li = queries[k][0];
+                    int ri = queries[k][1];
+
+                    k++;
+
+                    if(ri < i)
+                        continue;
+
+                    line[Math.Max(li, i)]++;
+                    line[ri + 1]--;
+                }
+
+                overall += line[i];
+            }
+
+            return true;
+        }
+
+        public int MaximumCandies(int[] candies, long k)
+        {
+            var right = candies.Aggregate(0L, (current, n) => current + n) / k;
+            long left = 1;
+            bool check=false;
+            var result = 0;
+
+            while(right >= left)
+            {
+                long mid = left +(right - left) / 2;
+                check = k <= candies.Sum(x => x / mid);
+                if (check)
+                {
+                    result = (int)mid;
+                    left = mid + 1;
+                }
+                else
+                    right = mid - 1;
+            }
+            
+            return result;
+        }
+
+        public int LengthAfterTransformations(string s, int t)
+        {
+            int MOD = 1_000_000_007;
+            var freq = new int[26];
+            int res = 0;
+
+            foreach(char letter in s)
+                freq[letter - 'a']++;
+
+            freq.Print();
+
+            for (int i=25; i>=2; i--)
+            {
+                if (freq[i] == 0)
+                    continue;
+                if (26 - i > t)
+                {
+                    res = (res + freq[i]) % MOD;
+                    freq[i] = 0;
+                }
+                else
+                {
+                    var temp = i + t;
+                    Console.WriteLine($"Temp:{temp}");
+                    freq[1] += (temp / 26) * freq[i];
+                    if (temp % 26 != 0)
+                    {
+                        freq[0] += ((temp / 26) - 1) * freq[i];
+                        res = (res + freq[i]) % MOD;
+                    }
+                    else
+                        freq[0] += (temp / 26) * freq[i];
+                }
+            }
+            freq.Print();
+            if(t < 25)
+            {
+                res = (res + freq[1]) % MOD;
+            }
+
+            return res;
+        }
+
+        public int[] SortArrayBySunDigits(int[] numbers)
+        {
+            int SumDigit(int num)
+            {
+                int sum = 0;
+                while(num > 0)
+                {
+                    sum += num % 10;
+                    num /= 10;
+                }
+                return sum;
+            }
+
+            return numbers.OrderBy(x => SumDigit(Math.Abs(x))).ToArray();
+        }
+
+        public string MaxStingA(string A, string B)
+        {
+            var digitsB = B.ToList();
+            var digitsA = A.ToCharArray();
+
+            digitsB.Sort((x, y) => y.CompareTo(x));
+
+            int indexB = 0;
+
+            for(int i=0; i < digitsA.Length && indexB < digitsB.Count; i++)
+            {
+                if(digitsB[indexB] > digitsA[i])
+                {
+                    digitsA[i] = digitsB[indexB];
+                    indexB++;
+                }
+            }
+
+            return new string(digitsA);
+        }
+
+        public int[] ConstructTransformedArray(int[] nums)
+        {
+            int n = nums.Count();
+            int[] result = new int[n];
+
+            for (int i =0; i < n; i++)
+            {
+                int cur = i + nums[i];
+                while(cur < 0)
+                    cur += n;
+                while(cur >= n)
+                    cur -= n;
+
+                result[i] = nums[cur];
+            }
+
+            return result;
+        }
     }
 
     static class SolutionExtenssion
@@ -840,6 +1720,16 @@ namespace LeetCodePlayground
             foreach (var item in list)
             {
                 Console.Write($"{item}, ");
+            }
+            Console.WriteLine();
+        }
+
+        public static void Print<Tkey, Tvalue>(this Dictionary<Tkey, Tvalue> map)
+        {
+            Console.Write("Map: \n");
+            foreach (var item in map)
+            {
+                Console.Write($"{item.Key}, {item.Value}\n");
             }
             Console.WriteLine();
         }
