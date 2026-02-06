@@ -1675,6 +1675,22 @@ namespace LeetCodePlayground
 
             return result;
         }
+
+        public int MinRemoval(int[] nums, int k)
+        {
+            Array.Sort(nums);
+            int l = 0;
+            int maxWindow = 1;
+
+            for(int r = 0; r < nums.Length; r++)
+            {
+                while ((long)nums[r] > (long)nums[l] * k)
+                    l++;
+                maxWindow = Math.Max(maxWindow, r-l+1);
+            }
+            
+            return nums.Length - maxWindow;
+        }
     }
 
     static class SolutionExtenssion
