@@ -67,5 +67,25 @@ namespace LeetCodePlayground.ProblemsWithNodes
 
             return dummy.next;
         }
+
+        public bool IsBalanced(TreeNode root)
+        {
+            int GetHeight(TreeNode node)
+            {
+                if(node is null) return 0;
+
+                var lHeight = GetHeight(node.left);
+                if (lHeight == -1) return -1;
+
+                int rHeight = GetHeight(node.right);
+                if(rHeight == -1) return -1;
+
+                if(Math.Abs(lHeight - rHeight) > 1) return -1;
+
+                return Math.Max(lHeight, rHeight)+1;
+            }
+
+            return GetHeight(root) != -1;
+        }
     }
 }
